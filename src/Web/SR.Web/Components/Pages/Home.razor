@@ -1,0 +1,116 @@
+@page "/"
+@rendermode InteractiveServer
+
+<PageTitle>Review Highlights | SidelineReel</PageTitle>
+
+<div class="app-shell">
+    <header class="topbar"><a class="brand" href="/">◈ SidelineReel</a><span>Coach Workspace</span><span class="avatar">AC</span></header>
+    <main>
+        <div class="eyebrow">RIDGELINE YOUTH SOCCER · U12 BLUE</div>
+        <div class="heading-row"><div><h1>The Right Moment. The Right Kid.</h1><p>Review uncertain player matches before highlights reach families.</p></div><button class="secondary" @onclick="Reset">Reset Demo</button></div>
+        <div class="demo-note">Interactive prototype · Fictional roster and illustrated footage · No video analysis or messages are sent.</div>
+        <ol class="steps"><li class="@(step == 1 ? "active" : "")">1. Review Matches</li><li class="@(step == 2 ? "active" : "")">2. Check Reels</li><li class="@(step == 3 ? "active" : "")">3. Release Summary</li></ol>
+        @if (step == 1)
+        {
+            <div class="section-heading"><div><h2>Three Matches Need Your Eye</h2><p>Saturday vs. Harbor · Review the footage, then confirm a player or leave the clip out.</p></div><span class="badge">@clips.Count(c => c.Resolved) / 3 Reviewed</span></div>
+            <div class="review-grid">
+                <aside class="queue" aria-label="Clips to review">
+                    @foreach (var item in clips)
+                    {
+                        <button class="queue-item @(current == item ? "selected" : "")" @onclick="() => Select(item)"><span class="clip-label">@item.Title</span><span>@item.Time · @item.Reason</span><strong>@(item.Excluded ? "Excluded" : item.Resolved ? $"Confirmed: {PlayerName(item.PlayerId)}" : "Needs Review")</strong></button>
+                    }
+                </aside>
+                <section class="card">
+                    <div class="card-title"><h3>@current.Title</h3><span>@current.Time</span></div>
+                    <div class="field" aria-label="Illustrated footage placeholder"><div class="field-line"></div><div class="jersey">@current.VisibleNumber</div><span class="frame-label">Illustrated Frame · @current.Time</span></div>
+                    <p class="caption">Demo observation: @current.Observation</p>
+                    <div class="warning"><strong>Check This Match</strong><br />Suggested: @current.Suggestion. @current.Reason. The suggestion is not a confirmed identity.</div>
+                    <label for="player">Who Is In This Clip?</label>
+                    <select id="player" @bind="selectedPlayer"><option value="">Choose From The Game Roster</option>@foreach (var player in players){<option value="@player.Id">#@player.Number · @player.Name</option>}</select>
+                    <label class="check"><input type="checkbox" @bind="verified" /> I checked the footage and can identify this player.</label>
+                    <div class="actions"><button disabled="@(string.IsNullOrEmpty(selectedPlayer) || !verified)" @onclick="Confirm">Confirm Player</button><button class="secondary" @onclick="Exclude">Cannot Tell — Exclude Clip</button></div>
+                    <p class="caption">Excluding keeps this clip out of personal reels and the team recap. Other reviewed highlights can still be released.</p>
+                </section>
+            </div>
+            <div class="bottom-bar"><span>@clips.Count(c => !c.Resolved) unresolved clips · Release stays blocked until all are handled.</span><button disabled="@clips.Any(c => !c.Resolved)" @onclick="() => step = 2">Preview Family Reels →</button></div>
+        }
+        else if (step == 2)
+        {
+            <div class="section-heading"><div><h2>Check What Families Will Receive</h2><p>Only confirmed clips appear. Thumbnails follow the confirmed player assignment.</p></div><span class="badge">Not Released</span></div>
+            <div class="reel-grid">
+                @foreach (var player in players)
+                {
+                    var owned = clips.Where(c => c.PlayerId == player.Id && !c.Excluded).ToList();
+                    <section class="card reel"><div class="reel-thumb">#@player.Number</div><h3>@player.Name</h3><p>@owned.Count confirmed highlight@(owned.Count == 1 ? "" : "s")</p>@foreach(var item in owned){<div class="reel-clip">@item.Title · @item.Time</div>}@if(owned.Count == 0){<p class="caption">No personal reel or reel notification this time. Never substitute another player's clip.</p>}</section>
+                }
+            </div>
+            <div class="card recap"><h3>Weekly Team Recap</h3><p>@clips.Count(c => !c.Excluded) confirmed clips included · @clips.Count(c => c.Excluded) excluded · Unresolved: @clips.Count(c => !c.Resolved)</p><p class="caption">This demo represents only the three clips under review. A production recap would also include other eligible clips.</p></div>
+            <label class="check"><input type="checkbox" @bind="simulateFailure" /> Demo: Make The Next Release Fail</label>
+            @if (!string.IsNullOrEmpty(error)){<div class="warning" role="alert">@error</div>}
+            <div class="bottom-bar"><button class="secondary" @onclick="() => { step = 1; error = null; }">← Back To Review</button><button disabled="@clips.All(c => c.Excluded)" @onclick="Release">Release Reviewed Highlights</button></div>
+            @if(clips.All(c => c.Excluded)){<p role="status">Every clip is excluded. There is nothing to release; return to review if you can identify a player.</p>}
+        }
+        else
+        {
+            <section class="card success"><div class="success-mark">✓</div><h2>Reviewed Highlights Released</h2><p>Simulated release complete. No messages were sent.</p><div class="summary"><div><strong>@clips.Count(c => !c.Excluded)</strong><span>Confirmed Clips</span></div><div><strong>@clips.Count(c => c.Excluded)</strong><span>Excluded Clips</span></div><div><strong>0</strong><span>Unresolved Clips</span></div></div><p>Personal reels and their thumbnails use the corrected assignments. Excluded clips stay out of the recap.</p><button @onclick="Reset">Try Another Review</button></section>
+        }
+        @if (audit.Count > 0)
+        {
+            <details class="audit"><summary>Review History (@audit.Count Events)</summary><ul>@foreach(var entry in audit){<li>@entry</li>}</ul></details>
+        }
+        <div class="sr-status" role="status" aria-live="polite">@status</div>
+        <footer>Assessment prototype for <a href="https://ajaia.ai" target="_blank" rel="noopener noreferrer">Ajaia</a> · Changes reset when the page reloads.</footer>
+    </main>
+</div>
+
+@code {
+    private readonly List<Player> players = [new("mia", "Mia Carter", "14"), new("ava", "Ava Brooks", "4"), new("leo", "Leo Morgan", "11")];
+    private List<ReviewClip> clips = [];
+    private ReviewClip current = default!;
+    private string selectedPlayer = "";
+    private bool verified;
+    private bool simulateFailure;
+    private int step = 1;
+    private string? error;
+    private string status = "";
+    private readonly List<string> audit = [];
+    protected override void OnInitialized() => Reset();
+    private void Reset()
+    {
+        clips = [new("Goal At The Near Post", "12:08", "4", "Mia Carter #14", "Similar numbers: 14 / 4", "The illustrated jersey shows #4; select Ava if you can confirm her identity."), new("Breakaway Finish", "28:42", "14", "Ava Brooks #4", "Partly obscured jersey", "The illustrated jersey shows #14; select Mia if you can confirm her identity."), new("Crowded Goal-Line Save", "46:11", "?", "Leo Morgan #11", "Number cannot be read", "The player cannot be identified from this sample; excluding is the safe option.")];
+        step = 1; simulateFailure = false; error = null; audit.Clear(); Select(clips[0]); status = "Demo reset. Three clips need review.";
+    }
+    private string PlayerName(string? id) => players.FirstOrDefault(p => p.Id == id)?.Name ?? "Unassigned";
+    private void Select(ReviewClip clip) { current = clip; selectedPlayer = clip.PlayerId ?? ""; verified = false; }
+    private void Confirm()
+    {
+        if (!verified || !players.Any(p => p.Id == selectedPlayer)) return;
+        current.PlayerId = selectedPlayer; current.Resolved = true; current.Excluded = false;
+        status = $"{current.Title} confirmed as {PlayerName(selectedPlayer)}."; audit.Add(status); Next();
+    }
+    private void Exclude()
+    {
+        current.PlayerId = null; current.Resolved = true; current.Excluded = true;
+        status = $"{current.Title} excluded from all outputs."; audit.Add(status); Next();
+    }
+    private void Next() { var next = clips.FirstOrDefault(c => !c.Resolved); if (next is not null) Select(next); else verified = false; }
+    private void Release()
+    {
+        if (step != 2 || clips.Any(c => !c.Resolved) || clips.All(c => c.Excluded)) return;
+        if (simulateFailure) { simulateFailure = false; error = "Release failed. Nothing was released. Your review decisions are preserved; try again."; audit.Add("Simulated release failed; no outputs released."); return; }
+        error = null; step = 3; audit.Add("Simulated release completed once for this review batch."); status = "Reviewed highlights released in the demo.";
+    }
+    private sealed record Player(string Id, string Name, string Number);
+    private sealed class ReviewClip(string title, string time, string visibleNumber, string suggestion, string reason, string observation)
+    {
+        public string Title { get; } = title;
+        public string Time { get; } = time;
+        public string VisibleNumber { get; } = visibleNumber;
+        public string Suggestion { get; } = suggestion;
+        public string Reason { get; } = reason;
+        public string Observation { get; } = observation;
+        public string? PlayerId { get; set; }
+        public bool Resolved { get; set; }
+        public bool Excluded { get; set; }
+    }
+}
