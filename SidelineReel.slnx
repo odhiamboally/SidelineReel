@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Web/SR.Web/SR.Web.csproj" Id="1166fd1b-f666-4457-b72e-691edc6f5f85" />
+  </Folder>
+  <Folder Name="/tests/" />
+</Solution>
