@@ -427,3 +427,7 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Local assessment preparation notes
+/VIDEO-GUIDE.md
+/WORKING.md
