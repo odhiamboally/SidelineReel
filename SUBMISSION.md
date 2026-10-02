@@ -1,6 +1,6 @@
 # SidelineReel Product Manager Assessment
 
-**Video:** [Public Video Link](https://www.loom.com/share/4dc6a6c5e04742b4bbb4ac1ca15e9f0b)
+**Video:** [Public Video Link](https://www.loom.com/share/075aeb40718d4f3b96d2a62ac8525775)
 
 **Candidate:** Allan Odhiambo
 
