@@ -1,8 +1,10 @@
 # SidelineReel Product Manager Assessment
 
-**Video:** [ADD PUBLIC VIDEO LINK BEFORE SUBMISSION]
+**Video:** [Public Video Link](https://www.loom.com/share/4dc6a6c5e04742b4bbb4ac1ca15e9f0b)
+
 **Candidate:** Allan Odhiambo
-**Prototype:** [ATTACH THE RUNNABLE SOURCE ZIP OR ADD A PUBLIC WORKING LINK]
+
+**Prototype:** [Runnable Source And Instructions](https://github.com/odhiamboally/SidelineReel) | [Download Source ZIP](https://github.com/odhiamboally/SidelineReel/archive/refs/heads/main.zip)
 
 ## Task 1. The Roadmap Call
 
@@ -20,14 +22,14 @@ The 90% auto-recap Share-button usage in Material 2 measures a different object 
 
 ### Ranked roadmap
 
-| Rank | Candidate | Decision and tradeoff |
-| --- | --- | --- |
-| 1 | Prevent uncertain roster matches from reaching families | Build the coach-review and release gate. Multiple accounts report a core promise failing; the analytics note links the same issue to unopened reels. The cost is added coach work and potential delay, which the rollout must measure. |
-| 2 | Improve notification timing | Next, validate recipient-local delivery timing and test daytime delivery. The dashboard directly identifies late notifications as another opening barrier. It will not correct a wrong child's reel, so it follows the correctness intervention. |
-| 3 | Repair watermark consistency on camera-roll exports | Triage the export path and estimate a bounded fix. A real quality issue, but one ticket explicitly describes it as not urgent. No evidence supplied makes it more consequential than identity errors. |
-| 4 | Expand parent editing controls | Defer expansion. Observe attempted edits and validate the existing completion funnel first. Survey demand deserves investigation; very low completion may indicate usability failure rather than lack of demand. |
-| 5 | Livestreaming | Do not build next or promise delivery in six weeks. It introduces a substantial new workflow and operational obligations before we have sizing, broader demand, or evidence that a smaller version would save renewal. Commercial discovery starts immediately despite its low build rank. |
-| 6 | Replace the soccer-ball app icon | Defer. The all-sports mismatch is real but there is little evidence of material harm. Consider a small branding change when its effort is known; this ranking is not an instruction to block a trivial fix indefinitely. |
+| Rank | Candidate                                               | Decision and tradeoff                                                                                                                                                                                                                                                                      |
+| ---- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1    | Prevent uncertain roster matches from reaching families | Build the coach-review and release gate. Multiple accounts report a core promise failing; the analytics note links the same issue to unopened reels. The cost is added coach work and potential delay, which the rollout must measure.                                                     |
+| 2    | Improve notification timing                             | Next, validate recipient-local delivery timing and test daytime delivery. The dashboard directly identifies late notifications as another opening barrier. It will not correct a wrong child's reel, so it follows the correctness intervention.                                           |
+| 3    | Repair watermark consistency on camera-roll exports     | Triage the export path and estimate a bounded fix. A real quality issue, but one ticket explicitly describes it as not urgent. No evidence supplied makes it more consequential than identity errors.                                                                                      |
+| 4    | Expand parent editing controls                          | Defer expansion. Observe attempted edits and validate the existing completion funnel first. Survey demand deserves investigation; very low completion may indicate usability failure rather than lack of demand.                                                                           |
+| 5    | Livestreaming                                           | Do not build next or promise delivery in six weeks. It introduces a substantial new workflow and operational obligations before we have sizing, broader demand, or evidence that a smaller version would save renewal. Commercial discovery starts immediately despite its low build rank. |
+| 6    | Replace the soccer-ball app icon                        | Defer. The all-sports mismatch is real but there is little evidence of material harm. Consider a small branding change when its effort is known; this ranking is not an instruction to block a trivial fix indefinitely.                                                                   |
 
 Instrumentation for the chosen feature is part of item 1, not a separate competing initiative. Rankings reflect supplied evidence; engineering estimates may change the sequencing of small fixes.
 
@@ -73,18 +75,18 @@ For production, persist clip ID, game/roster version, suggested identity, confir
 
 ### Testable acceptance criteria
 
-| ID | Given / When | Expected result |
-| --- | --- | --- |
-| AC1 | A batch contains an unresolved clip; release is requested | Server rejects release; the UI identifies remaining review work. |
-| AC2 | A coach selects a player but has not acknowledged footage review | Confirmation is unavailable. Invalid or non-roster player IDs are rejected server-side. |
-| AC3 | A #4 clip was suggested for #14; coach confirms #4 | It belongs only to the confirmed player's personal reel; the previous player's reel and thumbnail no longer use it. |
-| AC4 | Coach cannot establish identity and excludes a clip | It appears in neither personal reels nor team recap; the decision remains visible in the audit history. |
-| AC5 | All items are resolved with at least one confirmed clip | Coach can preview the current output; only this reviewed version can be released. |
-| AC6 | Every clip is excluded, or a player's reel has zero eligible clips | No empty batch release or empty personal-reel notification is created. |
-| AC7 | A coach changes a decision after preview or another reviewer updates it | Old preview is invalidated; stale release/update is rejected and requires refresh. |
-| AC8 | Asset preparation fails or the same release is retried | Decisions survive, no incomplete output is exposed, and a successful retry does not duplicate notifications. |
-| AC9 | A user lacks permission for the team/game | Review and release requests are rejected, including direct API requests. |
-| AC10 | A coach completes review using keyboard navigation | Controls have visible focus and labels; state/error feedback is available without relying on color alone. |
+| ID   | Given / When                                                            | Expected result                                                                                                     |
+| ---- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| AC1  | A batch contains an unresolved clip; release is requested               | Server rejects release; the UI identifies remaining review work.                                                    |
+| AC2  | A coach selects a player but has not acknowledged footage review        | Confirmation is unavailable. Invalid or non-roster player IDs are rejected server-side.                             |
+| AC3  | A #4 clip was suggested for #14; coach confirms #4                      | It belongs only to the confirmed player's personal reel; the previous player's reel and thumbnail no longer use it. |
+| AC4  | Coach cannot establish identity and excludes a clip                     | It appears in neither personal reels nor team recap; the decision remains visible in the audit history.             |
+| AC5  | All items are resolved with at least one confirmed clip                 | Coach can preview the current output; only this reviewed version can be released.                                   |
+| AC6  | Every clip is excluded, or a player's reel has zero eligible clips      | No empty batch release or empty personal-reel notification is created.                                              |
+| AC7  | A coach changes a decision after preview or another reviewer updates it | Old preview is invalidated; stale release/update is rejected and requires refresh.                                  |
+| AC8  | Asset preparation fails or the same release is retried                  | Decisions survive, no incomplete output is exposed, and a successful retry does not duplicate notifications.        |
+| AC9  | A user lacks permission for the team/game                               | Review and release requests are rejected, including direct API requests.                                            |
+| AC10 | A coach completes review using keyboard navigation                      | Controls have visible focus and labels; state/error feedback is available without relying on color alone.           |
 
 AC7-9 describe production requirements; this in-memory prototype does not implement authentication, concurrent sessions, durable storage, rendering, or notification infrastructure.
 
@@ -123,9 +125,8 @@ Fictional roster, illustrated frames, and in-memory state are intentional protot
 
 ## Task 4. AI Workflow Note
 
-I used AI to compare the five materials, check metric denominators, draft the specification, and implement the Blazor prototype. I explicitly approved the priority of correcting roster matches and deferring livestreaming; the final roadmap, commercial tradeoffs, and commitments remain my responsibility. I rejected earlier AI preparation that invented a fifth task and a two-minute video requirement: the actual assignment has four tasks and asks for a 5-10 minute recording. The implementation uses simulated media rather than claiming to have built video recognition.
+I used AI to compare the five materials, check metric denominators, draft the specification, and implement the Blazor prototype. I explicitly approved the priority of correcting roster matches and deferring livestreaming; the final roadmap, commercial tradeoffs, and commitments remain my responsibility. One specific correction during the AI-assisted review was removing earlier AI preparation that invented a fifth task and a two-minute video requirement: the actual assignment has four tasks and asks for a 5-10 minute recording. The implementation uses simulated media rather than claiming to have built video recognition.
 
 I used AGENTS.md for persistent AI working rules and kept the feature specification directly in this submission. In a longer-lived repository I would separate FEATURE-SPEC.md, PLAN.md, and EXECUTION_STRATEGY.md when each has a distinct purpose. For this timed exercise, consolidating them avoids duplicate sources of truth and keeps implementation aligned with the assessed spec.
 
 Prepared for [Ajaia](https://ajaia.ai).
-
